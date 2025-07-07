@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Panel</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="sidebar">
+    <div class="nav-item" onclick="loadSection('1')">📊 Dashboard</div>
+    <div class="nav-item" onclick="loadSection('2')">📄 Warranties</div>
+    <div class="nav-item" onclick="loadSection('3')">🧰 Services</div>
+    <div class="nav-item" onclick="loadSection('4')">📥 Registrations</div>
+    <div class="nav-item" onclick="loadSection('5')">🧑‍💼 KYC Management</div>
+    <div class="nav-item" onclick="loadSection('6')">👥 Sub User Management</div>
+    <div class="nav-item" onclick="loadSection('7')">📢 Promotions</div>
+    <div class="nav-item" onclick="loadSection('8')">💰 Transactions</div>
+    <div class="nav-item" onclick="loadSection('9')">📊 Account & Balances</div>
+  </div>
+
+  <div id="main-content" class="content">
+    <!-- Section content will load here -->
+  </div>
+
+  <script src="main.js"></script>
+  <script>
+    // Default load dashboard
+    window.addEventListener("DOMContentLoaded", () => {
+      loadSection("1");
+    });
+  </script>
+</body>
+</html>
