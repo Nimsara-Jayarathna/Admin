@@ -1,0 +1,125 @@
+<h1 style="display: flex; justify-content: space-between; align-items: center;">
+  📋 Distributor Registrations
+  <button onclick="openEnrollmentModal(false)" style="padding: 8px 16px; background: #007BFF; color: white; border: none; border-radius: 4px;">Register New User</button>
+</h1>
+
+<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+  <thead>
+    <tr>
+      <th>Business Name</th>
+      <th>Mobile Number</th>
+      <th>Product</th>
+      <th>Service</th>
+      <th>Enrollment Type</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody id="registrations-table-body">
+    <tr>
+      <td>ABC Electronics</td>
+      <td>0771234567</td>
+      <td><a href="#">Product</a></td>
+      <td><a href="#">Service</a></td>
+      <td>Admin Enrollment</td>
+      <td>
+        <button onclick="openEnrollmentModal(false)">Enroll</button>
+        <button style="color: red;">Delete</button>
+      </td>
+    </tr>
+    <tr>
+      <td>QuickTech Solutions</td>
+      <td>0719876543</td>
+      <td><a href="#">Product</a></td>
+      <td>-</td>
+      <td>Admin Enrollment</td>
+      <td>
+        <button onclick="openEnrollmentModal(false)">Enroll</button>
+        <button style="color: red;">Delete</button>
+      </td>
+    </tr>
+    <tr>
+      <td>HealthCare Rentals</td>
+      <td>0784567890</td>
+      <td>-</td>
+      <td><a href="#">Service</a></td>
+      <td>Self Enrollment</td>
+      <td>
+        <button onclick="openEnrollmentModal(true)">Enroll</button>
+        <button style="color: red;">Delete</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Modal -->
+<div id="enrollmentModal" class="modal" style="display:none; position:fixed; inset:0; background-color:rgba(0,0,0,0.6); z-index:1000;">
+  <div class="modal-content" style="background:white; margin:5% auto; padding:20px; width:50%; position:relative;">
+    <span onclick="closeEnrollmentModal()" style="position:absolute; top:10px; right:20px; font-size:20px; cursor:pointer;">&times;</span>
+    <h2>📝 Enroll Distributor</h2>
+    <form id="enrollmentForm">
+      <label>Business Name:<br><input id="businessName" type="text" required /></label><br><br>
+      <label>Mobile Number:<br><input id="mobileNumber" type="tel" required /></label><br><br>
+      <label>Business Address:<br><input id="businessAddress" type="text" required /></label><br><br>
+      <label>NIC / Passport:<br><input id="nicPassport" type="text" required /></label><br><br>
+      <label>Business Email:<br><input id="email" type="email" required /></label><br><br>
+      <label>Landline Number:<br><input id="landline" type="tel" /></label><br><br>
+      <label>Business Registration Number:<br><input id="regNumber" type="text" required /></label><br><br>
+      <label>Registration Document:<br><input type="file" /></label><br><br>
+      <label>NIC Front:<br><input type="file" /></label><br><br>
+      <label>NIC Back:<br><input type="file" /></label><br><br>
+
+      <label><input type="checkbox" id="hasProduct" /> Product</label><br>
+      <label><input type="checkbox" id="hasService" onchange="toggleServiceOptions(this.checked)" /> Service</label><br><br>
+
+      <div id="serviceOptions" style="display:none;">
+        <label>Select Applicable Services:</label><br><br>
+        <label><input type="checkbox" name="services" value="Vehicle Services" /> Vehicle Services</label><br>
+        <label><input type="checkbox" name="services" value="Vehicle Maintenance" /> Vehicle Maintenance</label><br>
+        <label><input type="checkbox" name="services" value="Calibration" /> Calibration</label><br>
+        <label><input type="checkbox" name="services" value="Payment Reminders" /> Payment Reminders</label><br>
+        <label><input type="checkbox" name="services" value="Medical Appointments" /> Medical Appointments</label><br>
+        <label><input type="checkbox" name="services" value="Educational Fees" /> Educational Fees</label><br>
+        <label><input type="checkbox" name="services" value="Home Needs" /> Home Needs</label><br>
+        <label><input type="checkbox" name="services" value="Rental Services" /> Rental Services</label><br><br>
+      </div>
+
+      <button type="submit">Submit Enrollment</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  function openEnrollmentModal(isServiceEnrollment) {
+    document.getElementById("enrollmentModal").style.display = "block";
+
+    // Simulate pre-filled data for service enrollment
+    if (isServiceEnrollment) {
+      document.getElementById("businessName").value = "HealthCare Rentals";
+      document.getElementById("mobileNumber").value = "0784567890";
+      document.getElementById("businessAddress").value = "7 Hospital Lane, Kandy";
+      document.getElementById("nicPassport").value = "783456987V";
+      document.getElementById("email").value = "hc@rentals.lk";
+      document.getElementById("landline").value = "0812223333";
+      document.getElementById("regNumber").value = "HCR-5678";
+      document.getElementById("hasService").checked = true;
+      toggleServiceOptions(true);
+    } else {
+      document.getElementById("enrollmentForm").reset();
+      toggleServiceOptions(false);
+    }
+  }
+
+  function closeEnrollmentModal() {
+    document.getElementById("enrollmentModal").style.display = "none";
+  }
+
+  function toggleServiceOptions(show) {
+    document.getElementById("serviceOptions").style.display = show ? "block" : "none";
+  }
+
+  document.getElementById("enrollmentForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    alert("Enrollment submitted!");
+    closeEnrollmentModal();
+  });
+</script>

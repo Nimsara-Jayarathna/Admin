@@ -1,0 +1,135 @@
+<h1>👥 Sub-User Management</h1>
+
+<!-- Entity Switcher -->
+<div style="display: flex; gap: 10px; margin-bottom: 20px;">
+  <button onclick="switchEntity('merchant')" style="background-color: #007BFF; color: white; padding: 8px 16px; border: none; border-radius: 5px;">Merchant</button>
+  <button onclick="switchEntity('distributor')" style="background-color: #007BFF; color: white; padding: 8px 16px; border: none; border-radius: 5px;">Distributor</button>
+</div>
+
+<!-- Content -->
+<div id="subuser-content"></div>
+
+<script>
+  const data = {
+    merchant: [
+      {
+        name: "TechWorld Pvt Ltd",
+        limit: 5,
+        subUsers: [
+          { name: "Kasun Jayasuriya", phone: "0771112233" },
+          { name: "Malsha Perera", phone: "0779998877" }
+        ]
+      },
+      {
+        name: "Global Mart",
+        limit: 7,
+        subUsers: [
+          { name: "Chathura Silva", phone: "0712223344" },
+          { name: "Isuru Fernando", phone: "0715566778" },
+          { name: "Dilani Wickramasinghe", phone: "0764433221" },
+          { name: "Lakshan Peiris", phone: "0789990012" },
+          { name: "Anjali Samarasinghe", phone: "0701234567" },
+          { name: "New Staff", phone: "0710001111" }
+        ]
+      }
+    ],
+    distributor: [
+      {
+        name: "ABC Distributors",
+        limit: 5,
+        subUsers: [
+          { name: "Ruwan Silva", phone: "0778877665" }
+        ]
+      }
+    ]
+  };
+
+  function switchEntity(type) {
+    const entities = data[type];
+    let html = `<h2>📄 ${type === 'merchant' ? 'Merchant' : 'Distributor'} Sub-Users</h2>`;
+
+    entities.forEach((entity, index) => {
+      html += `
+        <div style="border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 6px;">
+          <h3>${entity.name}</h3>
+          <p><strong>Sub-User Limit:</strong> ${entity.limit}</p>
+          <button onclick="toggleSubUsers('${type}', ${index})" id="toggle-btn-${type}-${index}"
+            style="background-color: #6c757d; color: white; padding: 6px 12px; border: none; border-radius: 4px;">
+            View Sub-Users (${entity.subUsers.length})
+          </button>
+          <button onclick="increaseLimit('${type}', ${index})"
+            style="background-color: #28a745; color: white; padding: 6px 12px; margin-left: 10px; border: none; border-radius: 4px;">
+            Increase Limit
+          </button>
+          <div id="subuser-table-${type}-${index}" style="display: none; margin-top: 10px;">
+            <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Phone</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${entity.subUsers.map(user => `
+                  <tr>
+                    <td>${user.name}</td>
+                    <td>${user.phone}</td>
+                  </tr>
+                `).join('')}
+                ${entity.subUsers.length < entity.limit ? `
+                  <tr>
+                    <td colspan="2" style="text-align: center;">
+                      <button onclick="addSubUser('${type}', ${index})"
+                        style="background-color: #007BFF; color: white; padding: 6px 12px; border: none; border-radius: 4px;">
+                        + Add Sub-User
+                      </button>
+                    </td>
+                  </tr>` : ''}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    });
+
+    document.getElementById("subuser-content").innerHTML = html;
+  }
+
+  function toggleSubUsers(type, index) {
+    const tableDiv = document.getElementById(`subuser-table-${type}-${index}`);
+    const toggleBtn = document.getElementById(`toggle-btn-${type}-${index}`);
+    const isVisible = tableDiv.style.display === 'block';
+    tableDiv.style.display = isVisible ? 'none' : 'block';
+    toggleBtn.textContent = isVisible ? `View Sub-Users (${data[type][index].subUsers.length})` : `Hide Sub-Users (${data[type][index].subUsers.length})`;
+  }
+
+  function addSubUser(type, entityIndex) {
+    const entity = data[type][entityIndex];
+    if (entity.subUsers.length >= entity.limit) {
+      alert("Sub-user limit reached. Please increase the limit.");
+      return;
+    }
+
+    const name = prompt("Enter sub-user name:");
+    const phone = prompt("Enter phone number:");
+
+    if (name && phone) {
+      entity.subUsers.push({ name, phone });
+      switchEntity(type);
+      document.getElementById(`subuser-table-${type}-${entityIndex}`).style.display = 'block';
+    }
+  }
+
+  function increaseLimit(type, entityIndex) {
+    const additional = prompt("Increase limit by how many?");
+    const number = parseInt(additional);
+    if (!isNaN(number) && number > 0) {
+      data[type][entityIndex].limit += number;
+      switchEntity(type);
+      document.getElementById(`subuser-table-${type}-${entityIndex}`).style.display = 'block';
+    }
+  }
+
+  // Default load
+  switchEntity("merchant");
+</script>

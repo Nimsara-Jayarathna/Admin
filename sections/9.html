@@ -1,0 +1,180 @@
+<h1>🏦 Account & Balances</h1>
+
+<!-- Top Switcher -->
+<div style="display: flex; gap: 10px; margin-bottom: 20px;">
+  <button onclick="switchAccounts('merchant')" style="padding:8px 16px; background-color:#007BFF; color:white; border:none; border-radius:5px;">Merchant</button>
+  <button onclick="switchAccounts('distributor')" style="padding:8px 16px; background-color:#007BFF; color:white; border:none; border-radius:5px;">Distributor</button>
+</div>
+
+<!-- Account Table -->
+<div id="account-content"></div>
+
+<!-- Statement Modal -->
+<div id="statement-modal" style="display:none; position:fixed; top:10%; left:50%; transform:translateX(-50%); background:white; border:1px solid #ccc; padding:20px; width:500px; z-index:9999; box-shadow:0 4px 12px rgba(0,0,0,0.1); border-radius:8px;">
+  <h3>📘 Statement for <span id="statement-user"></span></h3>
+  <table style="width:100%; border-collapse:collapse; margin-top:10px;">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Description</th>
+        <th>Change</th>
+        <th>Balance</th>
+      </tr>
+    </thead>
+    <tbody id="statement-body"></tbody>
+  </table>
+  <button onclick="downloadStatement()" style="margin-top:15px; padding:6px 12px; background:#28a745; color:white; border:none; border-radius:5px;">⬇️ Download</button>
+  <button onclick="closeStatement()" style="margin-top:15px; padding:6px 12px; background:red; color:white; border:none; border-radius:5px; float:right;">Close</button>
+</div>
+
+<!-- Edit Defaults Modal -->
+<div id="edit-modal" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:white; border:1px solid #ccc; padding:20px; width:400px; z-index:9999; box-shadow:0 4px 12px rgba(0,0,0,0.1); border-radius:8px;">
+  <h3>⚙️ Edit Default Values</h3>
+  <form onsubmit="saveDefaults(event)">
+    <div>
+      <label>Warranty Price:</label>
+      <input type="number" id="default-warranty" style="width:100%;" />
+    </div>
+    <div id="service-input" style="margin-top:10px;">
+      <label>Service Price:</label>
+      <input type="number" id="default-service" style="width:100%;" />
+    </div>
+    <input type="hidden" id="edit-type" />
+    <input type="hidden" id="edit-index" />
+    <button type="submit" style="margin-top:10px; background:green; color:white; border:none; padding:8px 12px; border-radius:5px;">Save</button>
+    <button type="button" onclick="closeEditModal()" style="margin-top:10px; background:gray; color:white; border:none; padding:8px 12px; border-radius:5px; float:right;">Cancel</button>
+  </form>
+</div>
+
+<script>
+  const balanceData = {
+    merchant: [
+      {
+        name: "TechWorld Pvt Ltd",
+        balance: 2500,
+        warrantyPrice: 50,
+        statements: [
+          { date: "2025-07-01", desc: "Warranty Assigned", change: -50 },
+          { date: "2025-07-03", desc: "Payment Received", change: +250 }
+        ]
+      }
+    ],
+    distributor: [
+      {
+        name: "ABC Distributors",
+        balance: 3000,
+        warrantyPrice: 50,
+        servicePrice: 100,
+        statements: [
+          { date: "2025-07-01", desc: "Service Assigned", change: -100 },
+          { date: "2025-07-04", desc: "Warranty Assigned", change: -50 },
+          { date: "2025-07-05", desc: "Payment Received", change: +500 }
+        ]
+      }
+    ]
+  };
+
+  function switchAccounts(type) {
+    const list = balanceData[type];
+    let html = `<h2>💼 ${type === 'merchant' ? 'Merchants' : 'Distributors'} Account Overview</h2>`;
+    html += `
+      <table style="width:100%; border-collapse:collapse;">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Current Balance</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${list.map((item, i) => `
+            <tr>
+              <td>${item.name}</td>
+              <td>LKR ${item.balance}</td>
+              <td>
+                <button onclick="viewStatement('${type}', ${i})" style="padding:6px 10px; background-color:#28a745; color:white; border:none; border-radius:4px;">View</button>
+                <button onclick="editDefaults('${type}', ${i})" style="margin-left:10px; padding:6px 10px; background-color:#ffc107; color:black; border:none; border-radius:4px;">Edit Defaults</button>
+              </td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+    document.getElementById("account-content").innerHTML = html;
+  }
+
+  function viewStatement(type, index) {
+    const entity = balanceData[type][index];
+    document.getElementById("statement-user").textContent = entity.name;
+    let runningBalance = entity.balance;
+    const reversedStatements = [...entity.statements].reverse();
+    document.getElementById("statement-body").innerHTML = reversedStatements.map(s => {
+      runningBalance -= s.change;
+      return `
+        <tr>
+          <td>${s.date}</td>
+          <td>${s.desc}</td>
+          <td style="color:${s.change < 0 ? 'red' : 'green'};">${s.change < 0 ? '-' : '+'}LKR ${Math.abs(s.change)}</td>
+          <td>LKR ${runningBalance}</td>
+        </tr>
+      `;
+    }).join("");
+    document.getElementById("statement-modal").style.display = "block";
+  }
+
+  function downloadStatement() {
+    const user = document.getElementById("statement-user").textContent;
+    const rows = document.getElementById("statement-body").querySelectorAll("tr");
+    let content = `Statement for ${user}\n--------------------------\n`;
+    rows.forEach(row => {
+      const cells = row.querySelectorAll("td");
+      content += `${cells[0].textContent} | ${cells[1].textContent} | ${cells[2].textContent} | ${cells[3].textContent}\n`;
+    });
+    const blob = new Blob([content], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${user.replace(/\s+/g, "_")}_statement.txt`;
+    link.click();
+  }
+
+  function closeStatement() {
+    document.getElementById("statement-modal").style.display = "none";
+  }
+
+  function editDefaults(type, index) {
+    const entity = balanceData[type][index];
+    document.getElementById("default-warranty").value = entity.warrantyPrice || 50;
+    if (type === "distributor") {
+      document.getElementById("service-input").style.display = "block";
+      document.getElementById("default-service").value = entity.servicePrice || 100;
+    } else {
+      document.getElementById("service-input").style.display = "none";
+    }
+    document.getElementById("edit-type").value = type;
+    document.getElementById("edit-index").value = index;
+    document.getElementById("edit-modal").style.display = "block";
+  }
+
+  function saveDefaults(event) {
+    event.preventDefault();
+    const type = document.getElementById("edit-type").value;
+    const index = document.getElementById("edit-index").value;
+    const warranty = parseFloat(document.getElementById("default-warranty").value);
+    const service = parseFloat(document.getElementById("default-service").value);
+
+    balanceData[type][index].warrantyPrice = warranty;
+    if (type === "distributor") {
+      balanceData[type][index].servicePrice = service;
+    }
+    closeEditModal();
+    switchAccounts(type);
+  }
+
+  function closeEditModal() {
+    document.getElementById("edit-modal").style.display = "none";
+  }
+
+  // Default load
+  switchAccounts("merchant");
+</script>

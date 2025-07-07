@@ -1,0 +1,113 @@
+<h1>🧰 Services Monitoring</h1>
+
+<div class="filter-tabs" style="margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px;">
+  <button onclick="switchService('vehicle')">Vehicle Services</button>
+  <button onclick="switchService('maintenance')">Vehicle Maintenance</button>
+  <button onclick="switchService('calibration')">Calibration</button>
+  <button onclick="switchService('reminder')">Payment Reminders</button>
+  <button onclick="switchService('medical')">Medical Appointments</button>
+  <button onclick="switchService('education')">Education Fees</button>
+  <button onclick="switchService('home')">Home Needs</button>
+  <button onclick="switchService('rental')">Rental Services</button>
+</div>
+
+<div id="service-content"></div>
+
+<script>
+function switchService(type) {
+  const tables = {
+    vehicle: `
+      <h2>🚗 Vehicle Services</h2>
+      <table><thead><tr><th>Vehicle No</th><th>User ID</th><th>Phone</th><th>Current Meter</th><th>Next Meter</th><th>Next Date</th><th>Details</th><th>Attachment</th></tr></thead>
+      <tbody><tr><td>AB-1234</td><td>USR01</td><td>0701234567</td><td>50,000</td><td>55,000</td><td>2025-08-01</td><td>Oil Change</td><td><a href="#">View</a></td></tr></tbody>
+      </table>`,
+
+    maintenance: `
+      <h2>🔧 Vehicle Maintenance</h2>
+      <table><thead><tr><th>Service</th><th>User ID</th><th>Phone</th><th>Rate Type</th><th>Rate</th><th>Details</th><th>Attachment</th></tr></thead>
+      <tbody><tr><td>Full Service</td><td>USR02</td><td>0712345678</td><td>Fixed</td><td>2000</td><td>Includes alignment</td><td><a href="#">View</a></td></tr></tbody>
+      </table>`,
+
+    calibration: `
+      <h2>📐 Calibration</h2>
+      <table><thead><tr><th>Machine</th><th>User ID</th><th>Phone</th><th>Type</th><th>Serial No</th><th>Cal Date</th><th>Certificate</th><th>Attachment</th></tr></thead>
+      <tbody><tr><td>Thermometer</td><td>USR03</td><td>0723456789</td><td>Temperature</td><td>CAL-001</td><td>2025-07-10</td><td>#123</td><td><a href="#">View</a></td></tr></tbody>
+      </table>`,
+
+    reminder: `
+      <h2>🧾 Payment Reminders</h2>
+      <table><thead><tr><th>Name</th><th>User ID</th><th>Phone</th><th>Due Date</th><th>Details</th><th>Attachment</th></tr></thead>
+      <tbody><tr><td>Electricity</td><td>USR04</td><td>0756789123</td><td>2025-07-30</td><td>Unit 124</td><td><a href="#">View</a></td></tr></tbody>
+      </table>`,
+
+    medical: `
+      <h2>🏥 Medical Appointments</h2>
+      <table><thead><tr><th>Doctor</th><th>User ID</th><th>Phone</th><th>Time</th><th>Date</th><th>Reason</th><th>Attachment</th></tr></thead>
+      <tbody><tr><td>Dr. Silva</td><td>USR05</td><td>0765432109</td><td>11:30 AM</td><td>2025-08-05</td><td>Checkup</td><td><a href="#">View</a></td></tr></tbody>
+      </table>`,
+
+    education: `
+      <h2>🏫 Educational Fees</h2>
+      <table><thead><tr><th>Student</th><th>User ID</th><th>Phone</th><th>Student ID</th><th>Next Fee Date</th><th>Attachment</th></tr></thead>
+      <tbody><tr><td>Ruwan</td><td>USR06</td><td>0779876543</td><td>STU102</td><td>2025-09-01</td><td><a href="#">View</a></td></tr></tbody>
+      </table>`,
+
+    home: `
+      <h2>🏠 Home Needs / Others</h2>
+      <table><thead><tr><th>Name</th><th>User ID</th><th>Phone</th><th>Details</th><th>Attachment</th></tr></thead>
+      <tbody><tr><td>Water Filter Replace</td><td>USR07</td><td>0711111111</td><td>Filter overdue</td><td><a href="#">View</a></td></tr></tbody>
+      </table>`,
+
+    rental: `
+        <h2>🏘️ Rental Services</h2>
+        <table id="rental-table">
+          <thead>
+            <tr>
+              <th>Property</th><th>User ID</th><th>Phone</th><th>Rate Type</th><th>Rate</th>
+              <th>Start Time</th><th>Duration</th><th>Calculated Total</th><th>Attachment</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-start="2025-07-01T10:00:00" data-rate="1500" data-rate-type="perDay">
+              <td>Unit B3</td><td>USR008</td><td>0787654321</td><td>Per Day</td><td>₹1,500</td>
+              <td>2025-07-01 10:00</td><td class="duration">-</td><td class="total">-</td><td><a href="#">View</a></td>
+            </tr>
+            <tr data-start="2025-07-05T08:00:00" data-rate="500" data-rate-type="perHour">
+              <td>Excavator</td><td>USR009</td><td>0771239999</td><td>Per Hour</td><td>₹500</td>
+              <td>2025-07-05 08:00</td><td class="duration">-</td><td class="total">-</td><td><a href="#">View</a></td>
+            </tr>
+          </tbody>
+        </table>
+        <script>
+          (() => {
+            const rows = document.querySelectorAll("#rental-table tbody tr");
+            const now = new Date();
+
+            rows.forEach(row => {
+              const start = new Date(row.dataset.start);
+              const rate = parseFloat(row.dataset.rate);
+              const type = row.dataset.rateType;
+              let duration = 0, total = 0;
+
+              if (type === "perDay") {
+                duration = Math.max(1, Math.ceil((now - start) / (1000 * 60 * 60 * 24)));
+                total = duration * rate;
+                row.querySelector(".duration").textContent = duration + " day(s)";
+              } else if (type === "perHour") {
+                duration = Math.max(1, Math.ceil((now - start) / (1000 * 60 * 60)));
+                total = duration * rate;
+                row.querySelector(".duration").textContent = duration + " hour(s)";
+              }
+
+              row.querySelector(".total").textContent = "₹" + total.toLocaleString();
+            });
+          })();
+        <\/script>
+      `
+    };
+
+    document.getElementById('service-content').innerHTML = tables[type] || '<p>No service data found.</p>';
+  }
+
+  switchService('vehicle');
+</script>

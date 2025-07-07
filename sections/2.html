@@ -1,0 +1,164 @@
+<h1>📄 Warranties</h1>
+
+<div class="filter-tabs" style="margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px;">
+  <button onclick="filterWarranties('All')">All</button>
+  <button onclick="filterWarranties('Active')">Active</button>
+  <button onclick="filterWarranties('Claimed')">Claimed</button>
+  <button onclick="filterWarranties('Claimed (Serial Changed)')">Claimed (Serial Changed)</button>
+  <button onclick="filterWarranties('Expired')">Expired</button>
+  <button onclick="filterWarranties('Voided')">Voided</button>
+  <button onclick="filterWarranties('Pending Decision')">Pending Decision</button>
+  <button onclick="filterWarranties('Pending Acceptance')">Pending Acceptance</button>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Serial Number</th>
+      <th>Consumer ID</th>
+      <th>Issued By (ID)</th>
+      <th>Issue Date</th>
+      <th>Time Period</th>
+      <th>Status</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody id="warranty-table-body">
+    <tr data-status="Active">
+      <td>SN-S001</td>
+      <td>C-1001</td>
+      <td>MERCH-005</td>
+      <td>2025-01-10</td>
+      <td>1 Year</td>
+      <td>Active</td>
+      <td><button onclick="showWarrantyDetails('seller')">View More</button></td>
+    </tr>
+    <tr data-status="Active">
+      <td>SN-S002</td>
+      <td>C-1004</td>
+      <td>MERCH-006</td>
+      <td>2025-01-20</td>
+      <td>6 Months</td>
+      <td>Active</td>
+      <td><button onclick="showWarrantyDetails('seller')">View More</button></td>
+    </tr>
+    <tr data-status="Voided">
+      <td>SN-D001</td>
+      <td>C-1002</td>
+      <td>DIST-002</td>
+      <td>2025-02-14</td>
+      <td>6 Months</td>
+      <td>Voided</td>
+      <td><button onclick="showWarrantyDetails('distributor')">View More</button></td>
+    </tr>
+    <tr data-status="Claimed (Serial Changed)">
+      <td>SN-MD001</td>
+      <td>C-1003</td>
+      <td>MERCH-009</td>
+      <td>2025-03-05</td>
+      <td>2 Years</td>
+      <td>Claimed (Serial Changed)</td>
+      <td><button onclick="showWarrantyDetails('mixed')">View More</button></td>
+    </tr>
+    <tr data-status="Expired">
+      <td>SN-D002</td>
+      <td>C-1005</td>
+      <td>DIST-003</td>
+      <td>2024-06-01</td>
+      <td>1 Year</td>
+      <td>Expired</td>
+      <td><button onclick="showWarrantyDetails('distributor')">View More</button></td>
+    </tr>
+    <tr data-status="Pending Decision">
+      <td>SN-MD002</td>
+      <td>C-1006</td>
+      <td>MERCH-010</td>
+      <td>2025-06-15</td>
+      <td>1 Year</td>
+      <td>Pending Decision</td>
+      <td><button onclick="showWarrantyDetails('mixed')">View More</button></td>
+    </tr>
+    <tr data-status="Pending Acceptance">
+      <td>SN-S003</td>
+      <td>C-1007</td>
+      <td>MERCH-011</td>
+      <td>2025-06-20</td>
+      <td>3 Months</td>
+      <td>Pending Acceptance</td>
+      <td><button onclick="showWarrantyDetails('seller')">View More</button></td>
+    </tr>
+  </tbody>
+</table>
+
+<div id="warrantyModal" class="modal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+  <div class="modal-content" style="background: white; padding: 20px; margin: 10% auto; width: 60%; position: relative;">
+    <span class="close-button" id="closeWarrantyModal" style="position: absolute; top: 10px; right: 20px; cursor: pointer; font-size: 20px;">&times;</span>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<script>
+  const modal = document.getElementById('warrantyModal');
+  const modalContent = document.getElementById('modalContent');
+  const closeBtn = document.getElementById('closeWarrantyModal');
+
+  const warrantyData = {
+    seller: `
+      <h2>Warranty Details</h2>
+      <p><strong>Serial Number:</strong> SN-S001</p>
+      <p><strong>Consumer ID:</strong> C-1001</p>
+      <p><strong>Consumer Name:</strong> User A</p>
+      <p><strong>Issued By (Merchant ID):</strong> MERCH-005</p>
+      <p><strong>Issue Date:</strong> 2025-01-10</p>
+      <p><strong>Warranty Duration:</strong> 1 Year</p>
+      <p><strong>Status:</strong> Active</p>
+      <p><strong>Product Name:</strong> Mixer Pro</p>
+      <p><strong>Category:</strong> Kitchen</p>
+      <p><strong>Warranty Document:</strong> <a href="#">View PDF</a></p>
+    `,
+    distributor: `
+      <h2>Warranty Details</h2>
+      <p><strong>Serial Number:</strong> SN-D001</p>
+      <p><strong>Consumer ID:</strong> C-1002</p>
+      <p><strong>Consumer Name:</strong> User B</p>
+      <p><strong>Issued By (Distributor ID):</strong> DIST-002</p>
+      <p><strong>Issue Date:</strong> 2025-02-14</p>
+      <p><strong>Warranty Duration:</strong> 6 Months</p>
+      <p><strong>Status:</strong> Voided</p>
+      <p><strong>Product Name:</strong> Power Fan</p>
+      <p><strong>Category:</strong> Electronics</p>
+      <p><strong>Warranty Document:</strong> <a href="#">View PDF</a></p>
+    `,
+    mixed: `
+      <h2>Warranty Details</h2>
+      <p><strong>Original Serial Number:</strong> SN-MD001</p>
+      <p><strong>New Serial Number (after claim):</strong> SN-MD001-NEW</p>
+      <p><strong>Consumer ID:</strong> C-1003</p>
+      <p><strong>Consumer Name:</strong> User C</p>
+      <p><strong>Issued By (Merchant ID):</strong> MERCH-009</p>
+      <p><strong>Distributor ID:</strong> DIST-011</p>
+      <p><strong>Issue Date:</strong> 2025-03-05</p>
+      <p><strong>Warranty Duration:</strong> 2 Years</p>
+      <p><strong>Status:</strong> Claimed (Serial Changed)</p>
+      <p><strong>Product Name:</strong> Smart Heater</p>
+      <p><strong>Category:</strong> Home Appliances</p>
+      <p><strong>Warranty Document:</strong> <a href="#">View PDF</a></p>
+      <p><em>⚠️ Serial number was changed after claim.</em></p>
+    `
+  };
+
+  function showWarrantyDetails(type) {
+    modalContent.innerHTML = warrantyData[type];
+    modal.style.display = 'block';
+  }
+
+  function filterWarranties(status) {
+    document.querySelectorAll('#warranty-table-body tr').forEach(row => {
+      row.style.display = (status === 'All' || row.dataset.status === status) ? '' : 'none';
+    });
+  }
+
+  if (closeBtn) {
+    closeBtn.onclick = () => modal.style.display = 'none';
+  }
+</script>

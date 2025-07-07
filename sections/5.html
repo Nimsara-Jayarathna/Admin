@@ -1,0 +1,268 @@
+<h1>🛡️ KYC Management</h1>
+
+<!-- Type Tabs -->
+<div style="display: flex; gap: 10px; margin-bottom: 20px;">
+  <button onclick="switchKYC('consumer')">Consumer</button>
+  <button onclick="switchKYC('merchant')">Merchant</button>
+  <button onclick="switchKYC('distributor')">Distributor</button>
+</div>
+
+<!-- Table Container -->
+<div id="kyc-content"></div>
+
+<!-- Edit Modal -->
+<div id="editModal" class="modal" style="display:none; position:fixed; inset:0; background-color:rgba(0,0,0,0.6); z-index:1000;">
+  <div style="background:white; margin:5% auto; padding:20px; width:50%; position:relative;">
+    <span onclick="closeEditModal()" style="position:absolute; top:10px; right:20px; font-size:20px; cursor:pointer;">&times;</span>
+    <h3>Edit Distributor Services</h3>
+
+    <label><input type="checkbox" id="editProduct"> Product</label><br>
+    <label><input type="checkbox" id="editService" onchange="toggleServiceOptions(this.checked)"> Service</label><br><br>
+
+    <div id="serviceOptions" style="display:none;">
+      <label>Select Services:</label><br>
+      <label><input type="checkbox" class="service-box" value="Vehicle Services"> Vehicle Services</label><br>
+      <label><input type="checkbox" class="service-box" value="Vehicle Maintenance"> Vehicle Maintenance</label><br>
+      <label><input type="checkbox" class="service-box" value="Calibration"> Calibration</label><br>
+      <label><input type="checkbox" class="service-box" value="Payment Reminders"> Payment Reminders</label><br>
+      <label><input type="checkbox" class="service-box" value="Medical Appointments"> Medical Appointments</label><br>
+      <label><input type="checkbox" class="service-box" value="Educational Fees"> Educational Fees</label><br>
+      <label><input type="checkbox" class="service-box" value="Home Needs"> Home Needs</label><br>
+      <label><input type="checkbox" class="service-box" value="Rental Services"> Rental Services</label><br>
+    </div>
+
+    <br>
+    <button onclick="saveEdit()">Save</button>
+  </div>
+</div>
+
+<script>
+  let currentRow = null;
+
+  function switchKYC(type) {
+    const tables = {
+      consumer: `
+        <h2>👤 Consumer KYC</h2>
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr>
+              <th>Full Name</th>
+              <th>NIC/Passport</th>
+              <th>Address</th>
+              <th>Selfie</th>
+              <th>NIC Front</th>
+              <th>NIC Back</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Ruwan Silva</td>
+              <td>200123456789</td>
+              <td>No. 12, Kandy Road</td>
+              <td><a href="#">View</a></td>
+              <td><a href="#">View</a></td>
+              <td><a href="#">View</a></td>
+              <td>Pending</td>
+              <td>
+                <button onclick="acceptKYC(this)">Accept</button>
+                <button onclick="rejectKYC(this)">Reject</button>
+              </td>
+            </tr>
+            <tr>
+              <td>Nadeesha Perera</td>
+              <td>901234567V</td>
+              <td>Galle Town</td>
+              <td><a href="#">View</a></td>
+              <td><a href="#">View</a></td>
+              <td><a href="#">View</a></td>
+              <td>Accepted</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td>Sachin Weerakoon</td>
+              <td>812345678X</td>
+              <td>Kurunegala</td>
+              <td><a href="#">View</a></td>
+              <td><a href="#">View</a></td>
+              <td><a href="#">View</a></td>
+              <td>Rejected</td>
+              <td>-</td>
+            </tr>
+          </tbody>
+        </table>
+      `,
+
+      merchant: `
+        <h2>🏪 Merchant KYC</h2>
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr>
+              <th>Business Name</th>
+              <th>Address</th>
+              <th>Email</th>
+              <th>Selfie</th>
+              <th>NIC Front</th>
+              <th>NIC Back</th>
+              <th>Reg. Document</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>TechWorld Pvt Ltd</td>
+              <td>56 Union Place, Colombo</td>
+              <td>support@techworld.lk</td>
+              <td><a href="#">View</a></td>
+              <td><a href="#">View</a></td>
+              <td><a href="#">View</a></td>
+              <td><a href="#">View</a></td>
+              <td>Pending</td>
+              <td>
+                <button onclick="acceptKYC(this)">Accept</button>
+                <button onclick="rejectKYC(this)">Reject</button>
+              </td>
+            </tr>
+            <tr>
+              <td>Global Mart</td>
+              <td>Main St, Negombo</td>
+              <td>info@globalmart.com</td>
+              <td><a href="#">View</a></td>
+              <td><a href="#">View</a></td>
+              <td><a href="#">View</a></td>
+              <td><a href="#">View</a></td>
+              <td>Accepted</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td>QuickFix</td>
+              <td>Matara</td>
+              <td>admin@quickfix.com</td>
+              <td><a href="#">View</a></td>
+              <td><a href="#">View</a></td>
+              <td><a href="#">View</a></td>
+              <td><a href="#">View</a></td>
+              <td>Rejected</td>
+              <td>-</td>
+            </tr>
+          </tbody>
+        </table>
+      `,
+
+      distributor: `
+        <h2>🏢 Registered Distributors (KYC Accepted)</h2>
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr>
+              <th>Business Name</th>
+              <th>Mobile</th>
+              <th>Address</th>
+              <th>Email</th>
+              <th>Landline</th>
+              <th>NIC / Passport</th>
+              <th>Reg. No</th>
+              <th>Reg. Doc</th>
+              <th>NIC Front</th>
+              <th>NIC Back</th>
+              <th>Product</th>
+              <th>Service</th>
+              <th>Selected Services</th>
+              <th>Edit</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>ABC Electronics</td>
+              <td>0771234567</td>
+              <td>No. 12, Colombo 05</td>
+              <td>abc@electronics.com</td>
+              <td>0112345678</td>
+              <td>901234567V</td>
+              <td>BRN12345</td>
+              <td><a href="#">View</a></td>
+              <td><a href="#">View</a></td>
+              <td><a href="#">View</a></td>
+              <td>✔️</td>
+              <td>✔️</td>
+              <td>Vehicle Services, Medical Appointments</td>
+              <td><button onclick="openEdit(this)">Edit</button></td>
+            </tr>
+            <tr>
+              <td>QuickTech Solutions</td>
+              <td>0719876543</td>
+              <td>123 Galle Rd, Mt Lavinia</td>
+              <td>info@quicktech.lk</td>
+              <td>0113456789</td>
+              <td>843210987X</td>
+              <td>QT2021-88</td>
+              <td><a href="#">View</a></td>
+              <td><a href="#">View</a></td>
+              <td><a href="#">View</a></td>
+              <td>✔️</td>
+              <td>❌</td>
+              <td>-</td>
+              <td><button onclick="openEdit(this)">Edit</button></td>
+            </tr>
+          </tbody>
+        </table>`
+    };
+
+    document.getElementById("kyc-content").innerHTML = tables[type] || "<p>No data available.</p>";
+  }
+
+  function openEdit(btn) {
+    currentRow = btn.closest("tr");
+    const product = currentRow.children[10].textContent === "✔️";
+    const service = currentRow.children[11].textContent === "✔️";
+    const selected = currentRow.children[12].textContent.split(',').map(s => s.trim());
+
+    document.getElementById("editProduct").checked = product;
+    document.getElementById("editService").checked = service;
+    toggleServiceOptions(service);
+
+    document.querySelectorAll(".service-box").forEach(cb => {
+      cb.checked = selected.includes(cb.value);
+    });
+
+    document.getElementById("editModal").style.display = "block";
+  }
+
+  function closeEditModal() {
+    document.getElementById("editModal").style.display = "none";
+  }
+
+  function toggleServiceOptions(show) {
+    document.getElementById("serviceOptions").style.display = show ? "block" : "none";
+  }
+
+  function saveEdit() {
+    const prod = document.getElementById("editProduct").checked;
+    const serv = document.getElementById("editService").checked;
+    const selected = Array.from(document.querySelectorAll(".service-box"))
+      .filter(cb => cb.checked)
+      .map(cb => cb.value)
+      .join(', ');
+
+    currentRow.children[10].textContent = prod ? "✔️" : "❌";
+    currentRow.children[11].textContent = serv ? "✔️" : "❌";
+    currentRow.children[12].textContent = serv ? selected : "-";
+
+    closeEditModal();
+  }
+
+  function acceptKYC(btn) {
+    const row = btn.closest("tr");
+    row.cells[row.cells.length - 2].textContent = "Accepted";
+    row.cells[row.cells.length - 1].innerHTML = "-";
+  }
+
+  function rejectKYC(btn) {
+    const row = btn.closest("tr");
+    row.cells[row.cells.length - 2].textContent = "Rejected";
+    row.cells[row.cells.length - 1].innerHTML = "-";
+  }
+
+  switchKYC("consumer"); // default load
+</script>

@@ -1,0 +1,130 @@
+<h1>💳 Transaction Management</h1>
+
+<!-- Switcher -->
+<div style="display: flex; gap: 10px; margin-bottom: 20px;">
+  <button onclick="switchTransaction('merchant')" style="background-color:#007BFF;color:white;padding:8px 16px;border:none;border-radius:5px;">Merchant</button>
+  <button onclick="switchTransaction('distributor')" style="background-color:#007BFF;color:white;padding:8px 16px;border:none;border-radius:5px;">Distributor</button>
+</div>
+
+<!-- Main Content -->
+<div id="transaction-content"></div>
+
+<script>
+  const transactionData = {
+    merchant: {
+      pending: [
+        { name: "TechWorld Pvt Ltd", balance: -2500, deposit: 2500, proof: "receipt1.jpg" },
+        { name: "Global Mart", balance: -500, deposit: 1000, proof: "receipt2.jpg" }
+      ],
+      history: []
+    },
+    distributor: {
+      pending: [
+        { name: "ABC Distributors", balance: -1500, deposit: 1500, proof: "receipt3.jpg" }
+      ],
+      history: []
+    }
+  };
+
+  function switchTransaction(type) {
+    const pending = transactionData[type].pending;
+    const history = transactionData[type].history;
+
+    let html = `<h2>📄 ${type === 'merchant' ? 'Merchant' : 'Distributor'} Transactions</h2>`;
+
+    // Pending Table
+    html += `
+      <h3>⏳ Pending Payment Proofs</h3>
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Current Balance</th>
+            <th>Deposited Amount</th>
+            <th>Payment Proof</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${
+            pending.length === 0
+              ? `<tr><td colspan="5" style="text-align:center; color:gray;">No pending transactions.</td></tr>`
+              : pending.map((req, i) => `
+                <tr>
+                  <td>${req.name}</td>
+                  <td>LKR ${req.balance}</td>
+                  <td>LKR ${req.deposit}</td>
+                  <td><a href="${req.proof}" target="_blank">View Proof</a></td>
+                  <td>
+                    <button style="background-color:green;color:white;padding:4px 10px;border:none;border-radius:3px;margin-right:5px;" onclick="acceptTransaction('${type}', ${i})">Accept</button>
+                    <button style="background-color:red;color:white;padding:4px 10px;border:none;border-radius:3px;" onclick="rejectTransaction('${type}', ${i})">Reject</button>
+                  </td>
+                </tr>
+              `).join("")
+          }
+        </tbody>
+      </table>
+    `;
+
+    // History Table
+    html += `
+      <h3>📜 Transaction History</h3>
+      <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Old Balance</th>
+            <th>Deposited</th>
+            <th>New Balance</th>
+            <th>Proof</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${
+            history.length === 0
+              ? `<tr><td colspan="6" style="text-align:center; color:gray;">No history yet.</td></tr>`
+              : history.map((h) => `
+                <tr>
+                  <td>${h.name}</td>
+                  <td>LKR ${h.oldBalance}</td>
+                  <td>LKR ${h.deposit}</td>
+                  <td>LKR ${h.newBalance}</td>
+                  <td><a href="${h.proof}" target="_blank">View</a></td>
+                  <td style="color:${h.status === 'Accepted' ? 'green' : 'red'};"><strong>${h.status}</strong></td>
+                </tr>
+              `).join("")
+          }
+        </tbody>
+      </table>
+    `;
+
+    document.getElementById("transaction-content").innerHTML = html;
+  }
+
+  function acceptTransaction(type, index) {
+    const record = transactionData[type].pending.splice(index, 1)[0];
+    const newBalance = record.balance + record.deposit;
+    transactionData[type].history.unshift({
+      ...record,
+      oldBalance: record.balance,
+      newBalance,
+      status: "Accepted"
+    });
+    switchTransaction(type);
+  }
+
+  function rejectTransaction(type, index) {
+    const record = transactionData[type].pending.splice(index, 1)[0];
+    transactionData[type].history.unshift({
+      ...record,
+      oldBalance: record.balance,
+      newBalance: record.balance,
+      status: "Rejected"
+    });
+    switchTransaction(type);
+  }
+
+  // Default load
+  switchTransaction("merchant");
+</script>
