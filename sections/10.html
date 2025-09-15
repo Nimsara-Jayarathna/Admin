@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Account Deletion Request</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <h1>Account Deletion Requests</h1>
+  <table id="deletion-requests-table">
+    <thead>
+      <tr>
+        <th>Full Name</th>
+        <th>Request Date</th>
+        <th>Warranty Amount</th>
+        <th>Service Amount</th>
+        <th>Days Left</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Rows will be inserted here by JavaScript -->
+    </tbody>
+  </table>
+
+  <div id="user-details-popup" class="popup-container" style="display: none;">
+    <div class="popup-content">
+      <span class="close-btn">&times;</span>
+      <h2>User Details</h2>
+      <p><strong>Warranty Amount:</strong> <span id="popup-warranty-amount"></span></p>
+      <p><strong>Service Amount:</strong> <span id="popup-service-amount"></span></p>
+      <p><strong>First Name:</strong> <span id="popup-first-name"></span></p>
+      <p><strong>Last Name:</strong> <span id="popup-last-name"></span></p>
+      <p><strong>Mobile Number:</strong> <span id="popup-mobile-no" class="highlight"></span></p>
+      <p><strong>NIC Number:</strong> <span id="popup-nic-no"></span></p>
+      <p><strong>Email:</strong> <span id="popup-email"></span></p>
+      <div class="action-buttons">
+        <button class="delete-btn">Delete User Data</button>
+        <button class="cancel-btn">Cancel Data Deletion</button>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
