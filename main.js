@@ -40,6 +40,12 @@ function loadSection(name) {
         document.body.appendChild(newScript);
         newScript.remove();
       });
+
+      // Convention-based initialization
+      const initFunctionName = `initSection${name}`;
+      if (typeof window[initFunctionName] === 'function') {
+        window[initFunctionName]();
+      }
     })
     .catch(error => {
       document.getElementById('main-content').innerHTML =
@@ -47,8 +53,8 @@ function loadSection(name) {
     });
 }
 
-// Data for the account deletion requests
-const deletionRequests = [
+function initSection10() {
+  const deletionRequests = [
   {
     fullName: "John Doe",
     requestDate: "2025-09-10",
@@ -106,10 +112,8 @@ const deletionRequests = [
   },
 ];
 
-// Function to populate the deletion requests table
-function populateDeletionRequestsTable() {
   const tableBody = document.querySelector("#deletion-requests-table tbody");
-    if (!tableBody) return;
+  if (!tableBody) return;
   tableBody.innerHTML = ""; // Clear existing rows
 
   const today = new Date();
@@ -155,15 +159,15 @@ function populateDeletionRequestsTable() {
     row.cells[4].appendChild(progressBarContainer);
     tableBody.appendChild(row);
   });
-    
-    // Add event listeners for the view buttons
-    document.querySelectorAll('.view-btn').forEach(button => {
-        button.addEventListener('click', (e) => {
-            const userEmail = e.target.dataset.email;
-            const userData = deletionRequests.find(user => user.email === userEmail);
-            populateAndShowPopup(userData);
-        });
+
+  // Add event listeners for the view buttons
+  document.querySelectorAll('.view-btn').forEach(button => {
+    button.addEventListener('click', (e) => {
+      const userEmail = e.target.dataset.email;
+      const userData = deletionRequests.find(user => user.email === userEmail);
+      populateAndShowPopup(userData);
     });
+  });
 }
 
 // Function to populate and show the user details popup
@@ -196,14 +200,70 @@ function populateAndShowPopup(userData) {
     }
 }
 
-// Modify the loadSection function to call the new function
-const originalLoadSection = loadSection;
-loadSection = function(name) {
-  originalLoadSection(name);
-  // Use a timeout to ensure the content is loaded before we try to populate the table
-  setTimeout(() => {
-      if (name === '10') {
-        populateDeletionRequestsTable();
-      }
-  }, 100);
+function initSection2() {
+  const modal = document.getElementById('warrantyModal');
+  const modalContent = document.getElementById('modalContent');
+  const closeBtn = document.getElementById('closeWarrantyModal');
+
+  const warrantyData = {
+    seller: `
+      <h2>Warranty Details</h2>
+      <p><strong>Serial Number:</strong> SN-S001</p>
+      <p><strong>Consumer ID:</strong> C-1001</p>
+      <p><strong>Consumer Name:</strong> User A</p>
+      <p><strong>Issued By (Merchant ID):</strong> MERCH-005</p>
+      <p><strong>Issue Date:</strong> 2025-01-10</p>
+      <p><strong>Warranty Duration:</strong> 1 Year</p>
+      <p><strong>Status:</strong> Active</p>
+      <p><strong>Product Name:</strong> Mixer Pro</p>
+      <p><strong>Category:</strong> Kitchen</p>
+      <p><strong>Warranty Document:</strong> <a href="#">View PDF</a></p>
+    `,
+    distributor: `
+      <h2>Warranty Details</h2>
+      <p><strong>Serial Number:</strong> SN-D001</p>
+      <p><strong>Consumer ID:</strong> C-1002</p>
+      <p><strong>Consumer Name:</strong> User B</p>
+      <p><strong>Issued By (Distributor ID):</strong> DIST-002</p>
+      <p><strong>Issue Date:</strong> 2025-02-14</p>
+      <p><strong>Warranty Duration:</strong> 6 Months</p>
+      <p><strong>Status:</strong> Voided</p>
+      <p><strong>Product Name:</strong> Power Fan</p>
+      <p><strong>Category:</strong> Electronics</p>
+      <p><strong>Warranty Document:</strong> <a href="#">View PDF</a></p>
+    `,
+    mixed: `
+      <h2>Warranty Details</h2>
+      <p><strong>Original Serial Number:</strong> SN-MD001</p>
+      <p><strong>New Serial Number (after claim):</strong> SN-MD001-NEW</p>
+      <p><strong>Consumer ID:</strong> C-1003</p>
+      <p><strong>Consumer Name:</strong> User C</p>
+      <p><strong>Issued By (Merchant ID):</strong> MERCH-009</p>
+      <p><strong>Distributor ID:</strong> DIST-011</p>
+      <p><strong>Issue Date:</strong> 2025-03-05</p>
+      <p><strong>Warranty Duration:</strong> 2 Years</p>
+      <p><strong>Status:</strong> Claimed (Serial Changed)</p>
+      <p><strong>Product Name:</strong> Smart Heater</p>
+      <p><strong>Category:</strong> Home Appliances</p>
+      <p><strong>Warranty Document:</strong> <a href="#">View PDF</a></p>
+      <p><em>⚠️ Serial number was changed after claim.</em></p>
+    `
+  };
+
+  window.showWarrantyDetails = function(type) {
+    modalContent.innerHTML = warrantyData[type];
+    modal.style.display = 'block';
+  }
+
+  window.filterWarranties = function(status) {
+    document.querySelectorAll('#warranty-table-body tr').forEach(row => {
+      row.style.display = (status === 'All' || row.dataset.status === status) ? '' : 'none';
+    });
+  }
+
+  if (closeBtn) {
+    closeBtn.onclick = () => modal.style.display = 'none';
+  }
 }
+
+
